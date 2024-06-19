@@ -5,28 +5,12 @@ import aiosqlite
 import os
 import sys
 import subprocess
-from gdpr import check_consent, give_consent, revoke_consent
+from gdpr import check_consent
 
 
 class ModCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @app_commands.command(name="consent",
-                          description="Give consent to store data")
-    async def consent(self, interaction: discord.Interaction):
-        await give_consent(interaction.user.id)
-        await interaction.response.send_message(
-            "Consent given to store your data."
-        )
-
-    @app_commands.command(name="revoke_consent",
-                          description="Revoke consent to store data")
-    async def revoke_consent(self, interaction: discord.Interaction):
-        await revoke_consent(interaction.user.id)
-        await interaction.response.send_message(
-            "Consent revoked and your data has been deleted."
-        )
 
     @app_commands.command(name="addnote",
                           description="Add a note to a user and optionally "
@@ -49,8 +33,8 @@ class ModCommands(commands.Cog):
                 notes = row[0] + "\n" + note
                 current_strikes = row[1] + strikes
                 await db.execute(
-                    "UPDATE user_notes SET notes = ?,"
-                    "strikes = ? WHERE user_id = ?",
+                    "UPDATE user_notes SET notes = ?, strikes = ? "
+                    "WHERE user_id = ?",
                     (notes, current_strikes, user.id)
                 )
             else:

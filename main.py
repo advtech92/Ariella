@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GUILD_ID = int(os.getenv('GUILD_ID'))
 TOKEN = os.getenv('DISCORD_TOKEN')
+GUILD_ID = int(os.getenv('GUILD_ID'))
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -19,10 +19,11 @@ intents.members = True
 
 class Ariella(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix='!', intents=intents)
+        super().__init__(intents=intents)
 
     async def setup_hook(self):
         await self.load_extension('commands')
+        await self.load_extension('gdpr_commands')
         self.tree.copy_global_to(guild=discord.Object(id=GUILD_ID))
         await self.tree.sync(guild=discord.Object(id=GUILD_ID))
 

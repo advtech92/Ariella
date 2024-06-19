@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
 import aiosqlite
-import asyncio
 import os
 import sys
 import subprocess
+import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,15 +16,13 @@ intents.message_content = True
 intents.members = True
 
 
-class Ariella(discord.Client):
+class Ariella(commands.Bot):
     def __init__(self):
-        super().__init__(intents=intents)
-        self.tree = discord.app_commands.CommandTree(self)
+        super().__init__(command_prefix='!', intents=intents)
 
     async def setup_hook(self):
-        await self.tree.sync()
-        # Load commands
         await self.load_extension('commands')
+        await self.tree.sync()
 
 
 bot = Ariella()
@@ -54,11 +52,4 @@ async def on_ready():
 async def on_guild_join(guild):
     await bot.tree.sync(guild=guild)
 
-
-# Load commands
-async def load_commands():
-    await bot.load_extension('commands')
-
-asyncio.run(load_commands())
-
-bot.run('TOKEN')
+bot.run(TOKEN)

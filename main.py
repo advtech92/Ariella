@@ -19,7 +19,7 @@ intents.members = True
 
 class Ariella(commands.Bot):
     def __init__(self):
-        super().__init__(intents=intents)
+        super().__init__(command_prefix='!', intents=intents)
 
     async def setup_hook(self):
         await self.load_extension('commands')

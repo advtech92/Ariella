@@ -30,7 +30,7 @@ bot = Ariella()
 
 # Database setup
 async def init_db():
-    async with aiosqlite.connect("bot.db") as db:
+    async with aiosqlite.connect("ariella.db") as db:
         await db.execute("""
             CREATE TABLE IF NOT EXISTS user_notes (
                 user_id INTEGER PRIMARY KEY,

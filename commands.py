@@ -14,7 +14,7 @@ class ModCommands(commands.Cog):
     @app_commands.command(name="addnote", description="Add a note to a user")
     async def add_note(self, interaction: discord.Interaction,
                        user: discord.User, note: str):
-        async with aiosqlite.connect("bot.db") as db:
+        async with aiosqlite.connect("ariella.db") as db:
             cursor = await db.execute(
                 "SELECT notes FROM user_notes WHERE user_id = ?",
                 (user.id,)
@@ -40,7 +40,7 @@ class ModCommands(commands.Cog):
     @app_commands.command(name="warn", description="Warn a user")
     async def warn_user(self, interaction: discord.Interaction,
                         user: discord.User, reason: str):
-        async with aiosqlite.connect("bot.db") as db:
+        async with aiosqlite.connect("ariella.db") as db:
             cursor = await db.execute(
                 "SELECT strikes FROM user_notes WHERE user_id = ?",
                 (user.id,)
@@ -73,7 +73,7 @@ class ModCommands(commands.Cog):
                           description="Check notes and strikes of a user")
     async def check_notes(self, interaction: discord.Interaction,
                           user: discord.User):
-        async with aiosqlite.connect("bot.db") as db:
+        async with aiosqlite.connect("ariella.db") as db:
             cursor = await db.execute(
                 "SELECT notes, strikes FROM user_notes WHERE user_id = ?",
                 (user.id,)
@@ -90,7 +90,7 @@ class ModCommands(commands.Cog):
                 )
 
     @app_commands.command(name="update",
-                          description="Update the bot from the repository")
+                          description="Update Ariellia to the latest version")
     @commands.is_owner()
     async def update(self, interaction: discord.Interaction):
         await interaction.response.send_message("Updating the bot...")
@@ -99,6 +99,14 @@ class ModCommands(commands.Cog):
         # Restart the bot
         await interaction.followup.send("Restarting the bot...")
         os.execv(sys.executable, ['python'] + sys.argv)
+
+    @app_commands.command(name="help", description="List all commands")
+    async def help_command(self, interaction: discord.Interaction):
+        commands = self.bot.tree.walk_commands()
+        help_text = "Here are the available commands:\n"
+        for command in commands:
+            help_text += f"/{command.name} - {command.description}\n"
+        await interaction.response.send_message(help_text)
 
 
 async def setup(bot):

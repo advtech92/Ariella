@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
+GUILD_ID = int(os.getenv('GUILD_ID'))
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -22,7 +23,8 @@ class Ariella(commands.Bot):
 
     async def setup_hook(self):
         await self.load_extension('commands')
-        await self.tree.sync()
+        self.tree.copy_global_to(guild=discord.Object(id=GUILD_ID))
+        await self.tree.sync(guild=discord.Object(id=GUILD_ID))
 
 
 bot = Ariella()

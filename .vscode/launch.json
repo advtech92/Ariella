@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Ariellia: Main",
+            "name": "Ariella: Main",
             "type": "debugpy",
             "request": "launch",
-            "program": "E:\\Development\\AI Development\\Ariellia\\main.py",
+            "program": "E:\\Development\\AI Development\\Ariella\\main.py",
             "console": "integratedTerminal"
         }
     ]

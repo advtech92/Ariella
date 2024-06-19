@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import aiosqlite
+import json
 from gdpr import check_consent, give_consent, revoke_consent
 
 
@@ -37,8 +38,7 @@ class GDPRCommands(commands.Cog):
             "Data is stored securely and only accessible by authorized "
             "personnel.\n"
             "You can revoke consent at any time by using the /revoke_consent "
-            "command.\n"
-            "For more details, visit our [website](https://example.com/privacy)."  # noqa: E501
+            "command."
         )
         await interaction.response.send_message(privacy_text)
 
@@ -54,13 +54,20 @@ class GDPRCommands(commands.Cog):
             row = await cursor.fetchone()
             if row:
                 notes, strikes = row
-                data_text = f"Your data:\nNotes: {notes}\nStrikes: {strikes}"
-                await interaction.user.send(data_text)
+                data = {
+                    "user_id": user_id,
+                    "notes": notes,
+                    "strikes": strikes
+                }
+                data_text = json.dumps(data, indent=4)
+                await interaction.user.send
+                (f"Your data:\n```json\n{data_text}\n```")
                 await interaction.response.send_message(
                     "Your data has been sent to you privately."
                 )
             else:
-                await interaction.response.send_message("No data found for you.")  # noqa: E501
+                await interaction.response.send_message
+                ("No data found for you.")
 
 
 async def setup(bot):

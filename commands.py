@@ -5,16 +5,40 @@ import aiosqlite
 import os
 import sys
 import subprocess
+from gdpr import check_consent, give_consent, revoke_consent
 
 
 class ModCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @app_commands.command(name="consent",
+                          description="Give consent to store data")
+    async def consent(self, interaction: discord.Interaction):
+        await give_consent(interaction.user.id)
+        await interaction.response.send_message(
+            "Consent given to store your data."
+        )
+
+    @app_commands.command(name="revoke_consent",
+                          description="Revoke consent to store data")
+    async def revoke_consent(self, interaction: discord.Interaction):
+        await revoke_consent(interaction.user.id)
+        await interaction.response.send_message(
+            "Consent revoked and your data has been deleted."
+        )
+
     @app_commands.command(name="addnote",
-                          description="Add a note to a user and/or add strikes")  # noqa: E501
+                          description="Add a note to a user and optionally "
+                                      "add strikes")
     async def add_note(self, interaction: discord.Interaction,
                        user: discord.User, note: str, strikes: int = 0):
+        if not await check_consent(user.id):
+            await interaction.response.send_message(
+                f"{user.name} has not given consent to store data."
+            )
+            return
+
         async with aiosqlite.connect("ariella.db") as db:
             cursor = await db.execute(
                 "SELECT notes, strikes FROM user_notes WHERE user_id = ?",
@@ -40,9 +64,16 @@ class ModCommands(commands.Cog):
             f"Note added for {user.name}: {note}. Strikes: {strikes}"
         )
 
-    @app_commands.command(name="warn", description="Warn a user")
+    @app_commands.command(name="warn",
+                          description="Warn a user")
     async def warn_user(self, interaction: discord.Interaction,
                         user: discord.User, reason: str):
+        if not await check_consent(user.id):
+            await interaction.response.send_message(
+                f"{user.name} has not given consent to store data."
+            )
+            return
+
         async with aiosqlite.connect("ariella.db") as db:
             cursor = await db.execute(
                 "SELECT strikes FROM user_notes WHERE user_id = ?",
@@ -64,18 +95,24 @@ class ModCommands(commands.Cog):
                 )
             await db.commit()
         await interaction.response.send_message(
-            f"User {user.name} warned for: {reason}."
-            f"They now have {strikes} strikes."
+            f"User {user.name} warned for: {reason}. They now have {strikes} "
+            f"strikes."
         )
         await user.send(
-            f"You have been warned for: {reason}."
-            f"You now have {strikes} strikes."
+            f"You have been warned for: {reason}. You now have {strikes} "
+            f"strikes."
         )
 
     @app_commands.command(name="removestrikes",
                           description="Remove strikes from a user")
     async def remove_strikes(self, interaction: discord.Interaction,
                              user: discord.User, strikes: int):
+        if not await check_consent(user.id):
+            await interaction.response.send_message(
+                f"{user.name} has not given consent to store data."
+            )
+            return
+
         async with aiosqlite.connect("ariella.db") as db:
             cursor = await db.execute(
                 "SELECT strikes FROM user_notes WHERE user_id = ?",
@@ -102,6 +139,12 @@ class ModCommands(commands.Cog):
                           description="Check notes and strikes of a user")
     async def check_notes(self, interaction: discord.Interaction,
                           user: discord.User):
+        if not await check_consent(user.id):
+            await interaction.response.send_message(
+                f"{user.name} has not given consent to store data."
+            )
+            return
+
         async with aiosqlite.connect("ariella.db") as db:
             cursor = await db.execute(
                 "SELECT notes, strikes FROM user_notes WHERE user_id = ?",
@@ -130,7 +173,8 @@ class ModCommands(commands.Cog):
         await interaction.followup.send("Restarting the bot...")
         os.execv(sys.executable, ['python'] + sys.argv)
 
-    @app_commands.command(name="help", description="List all commands")
+    @app_commands.command(name="help",
+                          description="List all commands")
     async def help_command(self, interaction: discord.Interaction):
         commands = self.bot.tree.walk_commands()
         help_text = "Here are the available commands:\n"

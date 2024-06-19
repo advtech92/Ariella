@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD_ID = int(os.getenv('GUILD_ID'))
+TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -38,6 +38,12 @@ async def init_db():
                 user_id INTEGER PRIMARY KEY,
                 notes TEXT,
                 strikes INTEGER
+            )
+        """)
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS user_consent (
+                user_id INTEGER PRIMARY KEY,
+                consent INTEGER
             )
         """)
         await db.commit()
